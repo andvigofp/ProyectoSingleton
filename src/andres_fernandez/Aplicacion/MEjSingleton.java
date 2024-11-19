@@ -457,8 +457,6 @@ public class MEjSingleton {
         }
     }
 
-
-
     //Método para eliminar un nuevo usuario (MYSQL)
     static void eliminarUsuario(int id) {
         try {
@@ -565,28 +563,17 @@ public class MEjSingleton {
         }
 
         // Paso 4: Calcular el próximo ID para la tabla de PostgreSQL
-        String sqlMaxIdPostgres = "SELECT COALESCE(MAX(id_producto), 0) + 1 AS next_id FROM objetos.productos";
-        int nextIdProducto = -1;
-        try (Statement stmtPostgres = postgresConn.createStatement()) {
-            ResultSet rsMaxId = stmtPostgres.executeQuery(sqlMaxIdPostgres);
-            if (rsMaxId.next()) {
-                nextIdProducto = rsMaxId.getInt("next_id");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        // Paso 5: Insertar el producto en PostgreSQL
-        if (idProductoMySQL != -1 && idCategoria != -1 && idProveedor != -1 && nextIdProducto != -1) {
+        // Paso 4: Insertar el producto en PostgreSQL
+        if (idProductoMySQL != -1 && idCategoria != -1 && idProveedor != -1) {
             String sqlInsertPostgres = "INSERT INTO objetos.productos (id_producto, id_proveedor, id_categoria) VALUES (?, ?, ?)";
             try (PreparedStatement stmtPostgres = postgresConn.prepareStatement(sqlInsertPostgres)) {
-                stmtPostgres.setInt(1, nextIdProducto);  // ID calculado para PostgreSQL
+                stmtPostgres.setInt(1, idProductoMySQL);  // ID calculado para PostgreSQL
                 stmtPostgres.setInt(2, idProveedor);    // ID del proveedor
                 stmtPostgres.setInt(3, idCategoria);    // ID de la categoría
 
                 int rowsAffected = stmtPostgres.executeUpdate();
                 if (rowsAffected > 0) {
-                    System.out.println("Producto creado en PostgreSQL con ID: " + nextIdProducto);
+                    System.out.println("Producto creado en PostgreSQL con ID: " + idProductoMySQL);
                 } else {
                     System.out.println("No se pudo insertar el producto en PostgreSQL.");
                 }
@@ -595,7 +582,7 @@ public class MEjSingleton {
             }
         }
 
-        // Paso 6: Mostrar el producto insertado en ambas bases de datos
+        // Paso 5: Mostrar el producto insertado en ambas bases de datos
         if (idProductoMySQL != -1) {
             // Mostrar el producto en MySQL
             String sqlMostrarMySQL = "SELECT id_producto, nombre_producto, stock FROM productos WHERE id_producto = ?";
@@ -613,11 +600,11 @@ public class MEjSingleton {
             }
         }
 
-        if (nextIdProducto != -1) {
+        if (idProductoMySQL != -1) {
             // Mostrar el producto en PostgreSQL
             String sqlMostrarPostgres = "SELECT id_producto, id_categoria, id_proveedor FROM objetos.productos WHERE id_producto = ?";
             try (PreparedStatement stmtMostrarPostgres = postgresConn.prepareStatement(sqlMostrarPostgres)) {
-                stmtMostrarPostgres.setInt(1, nextIdProducto);
+                stmtMostrarPostgres.setInt(1, idProductoMySQL);
                 ResultSet rsMostrarPostgres = stmtMostrarPostgres.executeQuery();
                 if (rsMostrarPostgres.next()) {
                     System.out.println("Producto insertado en PostgreSQL:");
@@ -630,122 +617,6 @@ public class MEjSingleton {
             }
         }
     }
-
-
-    //Método para insertar un producto en la base de datos en postgres
-    //pero con count para coger la id y sumarlo + el resultado de la id incremente esa id_producto
-    /**static void crearProducto(String nombre, Double precio, int stock, String nombreCategoria, String nif) {
-        // Paso 1: Obtener el ID de la categoría en PostgreSQL usando el nombre de la categoría
-        String sqlCategoria = "SELECT id_categoria FROM objetos.categorias WHERE nombre_categoria = ?";
-        int idCategoria = -1;
-        try (PreparedStatement stmtCategoria = postgresConn.prepareStatement(sqlCategoria)) {
-            stmtCategoria.setString(1, nombreCategoria);
-            ResultSet rsCategoria = stmtCategoria.executeQuery();
-            if (rsCategoria.next()) {
-                idCategoria = rsCategoria.getInt("id_categoria");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        // Paso 2: Obtener el ID del proveedor en PostgreSQL usando el NIF del proveedor
-        String sqlProveedor = "SELECT id_proveedor FROM objetos.proveedores WHERE (contacto).nif = ?";
-        int idProveedor = -1;
-        try (PreparedStatement stmtProveedor = postgresConn.prepareStatement(sqlProveedor)) {
-            stmtProveedor.setString(1, nif);
-            ResultSet rsProveedor = stmtProveedor.executeQuery();
-            if (rsProveedor.next()) {
-                idProveedor = rsProveedor.getInt("id_proveedor");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        // Paso 3: Insertar el nuevo producto en MySQL
-        String sqlInsertMySQL = "INSERT INTO productos (nombre_producto, precio, stock) VALUES (?, ?, ?)";
-        int idProductoMySQL = -1;
-        try (PreparedStatement stmtMySQL = mysqlconn.prepareStatement(sqlInsertMySQL, Statement.RETURN_GENERATED_KEYS)) {
-            stmtMySQL.setString(1, nombre);
-            stmtMySQL.setDouble(2, precio);
-            stmtMySQL.setInt(3, stock);
-
-            int rowsAffected = stmtMySQL.executeUpdate();
-            if (rowsAffected > 0) {
-                ResultSet generatedKeys = stmtMySQL.getGeneratedKeys();
-                if (generatedKeys.next()) {
-                    idProductoMySQL = generatedKeys.getInt(1);
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        // Paso 4: Calcular el próximo ID para la tabla de PostgreSQL usando COUNT(*)
-        String sqlCountPostgres = "SELECT COUNT(*) + 1 AS next_id FROM objetos.productos";
-        int nextIdProducto = -1;
-        try (Statement stmtPostgres = postgresConn.createStatement()) {
-            ResultSet rsCount = stmtPostgres.executeQuery(sqlCountPostgres);
-            if (rsCount.next()) {
-                nextIdProducto = rsCount.getInt("next_id");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        // Paso 5: Insertar el producto en PostgreSQL
-        if (idProductoMySQL != -1 && idCategoria != -1 && idProveedor != -1 && nextIdProducto != -1) {
-            String sqlInsertPostgres = "INSERT INTO objetos.productos (id_producto, id_proveedor, id_categoria) VALUES (?, ?, ?)";
-            try (PreparedStatement stmtPostgres = postgresConn.prepareStatement(sqlInsertPostgres)) {
-                stmtPostgres.setInt(1, nextIdProducto);  // ID calculado para PostgreSQL
-                stmtPostgres.setInt(2, idProveedor);    // ID del proveedor
-                stmtPostgres.setInt(3, idCategoria);    // ID de la categoría
-
-                int rowsAffected = stmtPostgres.executeUpdate();
-                if (rowsAffected > 0) {
-                    System.out.println("Producto creado en PostgreSQL con ID: " + nextIdProducto);
-                } else {
-                    System.out.println("No se pudo insertar el producto en PostgreSQL.");
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-
-        // Paso 6: Mostrar el producto insertado en ambas bases de datos
-        if (idProductoMySQL != -1) {
-            // Mostrar el producto en MySQL
-            String sqlMostrarMySQL = "SELECT id_producto, nombre_producto, stock FROM productos WHERE id_producto = ?";
-            try (PreparedStatement stmtMostrarMySQL = mysqlconn.prepareStatement(sqlMostrarMySQL)) {
-                stmtMostrarMySQL.setInt(1, idProductoMySQL);
-                ResultSet rsMostrarMySQL = stmtMostrarMySQL.executeQuery();
-                if (rsMostrarMySQL.next()) {
-                    System.out.println("Producto insertado en MySQL:");
-                    System.out.println("ID Producto: " + rsMostrarMySQL.getInt("id_producto"));
-                    System.out.println("Nombre Producto: " + rsMostrarMySQL.getString("nombre_producto"));
-                    System.out.println("Stock: " + rsMostrarMySQL.getInt("stock"));
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-
-        if (nextIdProducto != -1) {
-            // Mostrar el producto en PostgreSQL
-            String sqlMostrarPostgres = "SELECT id_producto, id_categoria, id_proveedor FROM objetos.productos WHERE id_producto = ?";
-            try (PreparedStatement stmtMostrarPostgres = postgresConn.prepareStatement(sqlMostrarPostgres)) {
-                stmtMostrarPostgres.setInt(1, nextIdProducto);
-                ResultSet rsMostrarPostgres = stmtMostrarPostgres.executeQuery();
-                if (rsMostrarPostgres.next()) {
-                    System.out.println("Producto insertado en PostgreSQL:");
-                    System.out.println("ID Producto: " + rsMostrarPostgres.getInt("id_producto"));
-                    System.out.println("ID Categoría: " + rsMostrarPostgres.getInt("id_categoria"));
-                    System.out.println("ID Proveedor: " + rsMostrarPostgres.getInt("id_proveedor"));
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-    }**/
 
 
     //Método para mostrar los datos del producto antes de eliminarlo por su nombre
