@@ -24,7 +24,7 @@ CREATE TABLE objetos.categorias (
 
 -- Crear la tabla de productos con relaciones a proveedores y categorías
 CREATE TABLE objetos.productos (
-    id_producto SERIAL PRIMARY KEY,
+    id_producto INT PRIMARY KEY,
     id_proveedor INT NOT NULL,
     id_categoria INT NOT NULL,
     FOREIGN KEY (id_proveedor) REFERENCES objetos.proveedores(id_proveedor) ON UPDATE CASCADE,
@@ -63,11 +63,11 @@ INSERT INTO objetos.categorias (nombre_categoria) VALUES
 ('Alimentos');
 
 -- Insertar datos en la tabla de productos (esto asigna los id_producto correctamente)
-INSERT INTO objetos.productos (id_proveedor, id_categoria) VALUES
-(1, 1),  -- Producto 1 de Proveedor Mayor 210 y categoría Electrónica
-(2, 2),  -- Producto 2 de Proveedor PCcomponenetes y categoría Muebles
-(3, 3),  -- Producto 3 de Proveedor Almazón y categoría Ropa
-(4, 4);  -- Producto 4 de Proveedor Alcampo y categoría Alimentos
+INSERT INTO objetos.productos (id_producto, id_proveedor, id_categoria) VALUES
+(1, 1, 1),  -- Producto 1 de Proveedor Mayor 210 y categoría Electrónica
+(2, 2, 2),  -- Producto 2 de Proveedor PCcomponenetes y categoría Muebles
+(3, 3, 3),  -- Producto 3 de Proveedor Almazón y categoría Ropa
+(4, 4, 4);  -- Producto 4 de Proveedor Alcampo y categoría Alimentos
 
 -- Insertar datos en la tabla de almacenes
 INSERT INTO objetos.almacenes (nombre_almacen, ubicacion) VALUES

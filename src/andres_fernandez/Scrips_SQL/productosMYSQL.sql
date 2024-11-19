@@ -41,7 +41,8 @@ INSERT INTO usuarios (id_usuario, nombre, email, ano_nacimiento) VALUES
 (1, 'Juan Pérez', 'juan@gmail.com', 1985),
 (2, 'María García', 'maria.garcia@outlook.es', 1990),
 (3, 'Carlos López', 'carlos.lopez@gmail.com', 1978),
-(4, 'Ana Torres', 'ana.torres@outlook.com', 1995);
+(4, 'Ana Torres', 'ana.torres@outlook.com', 1995),
+(5, 'Miguel Hernandez', 'miguelH@outlook.es', 2000);
 
 
 -- Insertar datos en la tabla pedidos
@@ -56,7 +57,8 @@ INSERT INTO pedidos (id_pedido, id_usuario, fecha_pedido) VALUES
 (1, 1, '2024-09-10'),
 (2, 2, '2024-10-11'),
 (3, 3, '2024-09-12'),
-(4, 4, '2024-11-12');
+(4, 4, '2024-11-12'),
+(5, 5, '2024-11-13');
 
 
 -- Insertar datos en la tabla pedidos_productos
@@ -64,4 +66,5 @@ INSERT INTO pedidos_productos (id_pedido, id_producto, cantidad) VALUES
 (1, 1, 2),  -- Juan Pérez compró 2 Laptops
 (2, 2, 1),  -- María García compró 1 Smartphone
 (3, 3, 3),  -- Carlos López compró 3 Tablets
-(4, 4, 1);  -- Ana Torres compró 1 Monitor
+(4, 4, 1),  -- Ana Torres compró 1 Monitor
+(5, 1, 10); -- Miguel Hernandez compró 10 Laptop
