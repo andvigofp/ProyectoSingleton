@@ -515,6 +515,7 @@ public class MEjSingleton {
     }
 
     //Método para insertar un producto en la base de datos en postgres
+    //Método para insertar un producto en la base de datos en postgres
     static void crearProducto(String nombre, Double precio, int stock, String nombre_categoria, String nif) {
 
         // Paso 1: Obtener el ID de la categoría en PostgreSQL usando el nombre de la categoría
@@ -525,9 +526,13 @@ public class MEjSingleton {
             ResultSet rsCategoria = stmtCategoria.executeQuery();
             if (rsCategoria.next()) {
                 idCategoria = rsCategoria.getInt("id_categoria");
+            }else {
+                System.out.println("Error: Categoria bo enocntrada: " + nombre_categoria);
+                return; //Detener ejecucion
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            return; //Detener ejecución
         }
 
         // Paso 2: Obtener el ID del proveedor en PostgreSQL usando el NIF del proveedor
@@ -538,9 +543,13 @@ public class MEjSingleton {
             ResultSet rsProveedor = stmtProveedor.executeQuery();
             if (rsProveedor.next()) {
                 idProveedor = rsProveedor.getInt("id_proveedor");
+            }else {
+                System.out.println("Error: Proveedor no encontrado con NI: " +nif);
+                return; //Detener ejecución
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            return; //Detener ejecución
         }
 
         // Paso 3: Insertar el nuevo producto en MySQL
@@ -560,6 +569,7 @@ public class MEjSingleton {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            return; //Detener ejecución
         }
 
         // Paso 4: Calcular el próximo ID para la tabla de PostgreSQL

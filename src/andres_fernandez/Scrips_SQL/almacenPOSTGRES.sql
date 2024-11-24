@@ -1,3 +1,6 @@
+-- Tenemos que crear primero la base de datos manualmente almacenPOSTGRES
+--CREATE DATABASE almacenPOSTGRES;
+
 -- Crear el esquema si no existe
 CREATE SCHEMA IF NOT EXISTS objetos;
 
