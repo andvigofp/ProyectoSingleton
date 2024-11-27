@@ -6,6 +6,7 @@ import andres_fernandez.Conexiones.DatabasePostgres;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Ejecutar {
@@ -28,8 +29,8 @@ public class Ejecutar {
                //Cerrar conexiones
                DabaseMYSQL.cerrarConexion();
                DatabasePostgres.cerrarConexion();
-           }catch (SQLException e) {
-               System.out.println("Error de la conexión " + e.toString());
+           }catch (SQLException | InputMismatchException e) {
+               System.out.println("Error de la conexión " + e.getMessage());
            }
     }
 }

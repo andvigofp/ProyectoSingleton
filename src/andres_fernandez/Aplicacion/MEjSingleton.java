@@ -31,24 +31,35 @@ public class MEjSingleton {
 
         int opcion = -1;
 
-        try {
-            do {
-                System.out.println(menu);
-                opcion = teclado.nextInt();
-                teclado.nextLine(); // Consumir el salto de línea
+        do {
+            System.out.println(menu); // Imprime el menú
 
+            // Intentar leer la opción
+            try {
+                boolean opcionValida = false; // Indicador para saber si la opción es válida
+
+                while (!opcionValida) {
+                    opcion = teclado.nextInt();
+                    teclado.nextLine(); // Limpiar el buffer
+
+                    // Verificamos que la opción esté en el rango correcto
+                    if (opcion >= 1 && opcion <= 13) {
+                        opcionValida = true; // Si la opción es válida, salimos del bucle
+                    } else {
+                        // Si la opción no está en el rango, mostramos un mensaje de error
+                        System.out.println("Error: Debes ingresar un número entre 1 y 13.");
+                    }
+                }
+
+                // Una vez que la opción es válida, procedemos con el switch
                 switch (opcion) {
                     case 1:
-                        //Crear una nueva categoría (PostgreSQL)
+                        // Crear una nueva categoría (PostgreSQL)
                         String nombreCategoria = ValiacionesMyqlPost.obtenerNombreCategoriaValido(teclado);
-
-                        //Validar que solo contenga letras
                         if (nombreCategoria != null) {
-                            // Verificar si la categoría ya existe
-
                             if (!existeCategoria(nombreCategoria)) {
                                 crearCategoria(nombreCategoria);
-                            }else {
+                            } else {
                                 System.out.println("La categoría ya existe. No se puede insertar.");
                             }
                         } else {
@@ -56,110 +67,102 @@ public class MEjSingleton {
                         }
                         break;
                     case 2:
-                        //Crear un nuevo proveedor (PostgreSQL)
+                        // Crear un nuevo proveedor (PostgreSQL)
                         String nombreProveedor = ValiacionesMyqlPost.esNombreValidoProveeedor(teclado);
                         String nif = ValiacionesMyqlPost.esNifValidoProveedor(teclado);
                         int telefono = Integer.parseInt(ValiacionesMyqlPost.esTelefonoValidoProveedor(teclado));
                         String email = ValiacionesMyqlPost.esEmailValidoProveedor(teclado);
 
-                        // Validaciones
-                            if (!existeProvedorNifEmail(nif, email)) {
-                                crearNuevoProveedor(nombreProveedor, nif, telefono, email);
-                            }else {
-                                System.out.println("Error: El proveedor con ese NIF, teléfono o email ya existe.");
-                            }
+                        if (!existeProvedorNifEmail(nif, email)) {
+                            crearNuevoProveedor(nombreProveedor, nif, telefono, email);
+                        } else {
+                            System.out.println("Error: El proveedor con ese NIF, teléfono o email ya existe.");
+                        }
                         break;
                     case 3:
-                        //Eliminar un nuevo proveedor (PostgreSQL)
+                        // Eliminar un proveedor (PostgreSQL)
                         int id = Integer.parseInt(ValiacionesMyqlPost.esIdProveedor(teclado));
-
                         elimnarProvedor(id);
                         break;
                     case 4:
-                        //Crear un nuevo usuario (MySQL)
+                        // Crear un nuevo usuario (MySQL)
                         String nombreUsuario = ValiacionesMyqlPost.esNombreUsuario(teclado);
                         String emailUsuario = ValiacionesMyqlPost.esEmailValidoUsuario(teclado);
                         int anho_nacimiento = Integer.parseInt(ValiacionesMyqlPost.esFechaNacimentoValidaUusario(teclado));
 
-
                         if (!existeUsuarioNombreEmialNif(nombreUsuario, emailUsuario, anho_nacimiento)) {
                             crearUsuario(nombreUsuario, emailUsuario, anho_nacimiento);
-                        }else {
+                        } else {
                             System.out.println("Error: El Usuario con ese nombre, email o año nacimiento ya existe.");
                         }
-
                         break;
                     case 5:
-                        //Eliminar un usuario (MySQL)
+                        // Eliminar un usuario (MySQL)
                         int idUsuario = Integer.parseInt(ValiacionesMyqlPost.esidUsuarioElimnar(teclado));
-
                         eliminarUsuario(idUsuario);
                         break;
                     case 6:
-                        // Llamar al método para ingresar los datos del producto
+                        // Crear nuevo producto (MySQL + PostgreSQL)
                         ArrayList<String> productos = ValiacionesMyqlPost.esNombreCrearProducto(teclado);
-
-                        //Crear nuevo producto (nombre, precio, stock, categoria, proveedor) (MySQL + PostgreSQL)
                         String nombre = productos.get(0);
                         Double precio = Double.valueOf(productos.get(1));
                         int stock = Integer.parseInt(productos.get(2));
                         String categoria = productos.get(3);
 
-                        // Obtener y mostrar los NIFs de los proveedores antes de pedir el NIF del proveedor
                         List<String> nifsProveedores = obtenerNifsProveedores();
-
                         System.out.println("Lista de NIFs de los proveedores disponibles:");
                         for (String nifProveedor : nifsProveedores) {
                             System.out.println(nifProveedor);
                         }
 
                         String nifs = ValiacionesMyqlPost.esNifCrearProducto(teclado);
-
                         crearProducto(nombre, precio, stock, categoria, nifs);
                         break;
                     case 7:
-                        //Eliminar un producto por su nombre (MySQL + PostgreSQL)
+                        // Eliminar un producto por su nombre (MySQL + PostgreSQL)
                         String nombreProductoE = ValiacionesMyqlPost.esNombreProductoEliminar(teclado);
-
                         eliminarProductoPorNombre(nombreProductoE);
                         break;
                     case 8:
-                        //Listar los productos con bajo stock (menos de X unidades disponibles) (MySQL)
+                        // Listar los productos con bajo stock (MySQL)
                         int stockProducto = Integer.parseInt(ValiacionesMyqlPost.esStock(teclado));
                         listarProductosBajoStock(stockProducto);
                         break;
                     case 9:
-                        //Obtener el total de pedidos realizados por cada usuario (MySQL)
+                        // Obtener el total de pedidos realizados por cada usuario (MySQL)
                         obtenerTotalPedidosUsuarios();
                         break;
                     case 10:
-                        //Obtener la cantidad de productos almacenados por cada almacén (PostgreSQL)
+                        // Obtener la cantidad de productos almacenados por cada almacén (PostgreSQL)
                         obtenerCantidadProductosEnCadaAlmacen();
                         break;
                     case 11:
-                        //Listar todos los productos con sus respectivas categorías y proveedores (PostgreSQL)
+                        // Listar todos los productos con sus respectivas categorías y proveedores (PostgreSQL)
                         listarTodosProductosConCategoriaYProveedor();
                         break;
                     case 12:
-                        //Obtener todos los Usuarios que han comprado algún producto de una categoria dada (MySQL + PostgreSQL).
-                        int categoría = Integer.parseInt(ValiacionesMyqlPost.esidCategoria(teclado));
-                        obtenerUsuariosCompraronProductosCategoria(categoría);
+                        // Obtener todos los Usuarios que han comprado algún producto de una categoría dada (MySQL + PostgreSQL)
+                        int categorias = Integer.parseInt(ValiacionesMyqlPost.esidCategoria(teclado));
+                        obtenerUsuariosCompraronProductosCategoria(categorias);
                         break;
                     case 13:
-                        //Listar información de un Paciente por ID
+                        // Salir
                         System.out.println("Fin del programa");
                         teclado.close();
                         return;
-
                     default:
-                        System.out.println("Opción no válida, por favor elija una opción del menú entre 1-12");
+                        //Ya no es necesario
+                        break;
                 }
-            } while (opcion != 13);
-        }catch (Exception e) {
-            System.out.println("Se produjo un error inesperado: " + e.getMessage());
-            e.printStackTrace();
-        }
+
+            } catch (InputMismatchException e) {
+                System.out.println("Error: Debes ingresar un número válido (1-13).");
+                teclado.nextLine(); // Limpiar el buffer de entrada para evitar bucles infinitos
+
+            }
+        } while (opcion != 13); // Continúa hasta que se seleccione la opción de salir
     }
+
 
     //Método para pedir por teclado para atributos de tipo int
     static int pedirInt(Scanner teclado, String mensaje) {
@@ -229,6 +232,8 @@ public class MEjSingleton {
         }
     }
 
+
+
     //Método para mostrar los dni de los proveedores
     public List<String> obtenerNifsProveedores() throws SQLException {
         List<String> nifs = new ArrayList<>();
@@ -239,6 +244,9 @@ public class MEjSingleton {
             while (rs.next()) {
                 nifs.add(rs.getString("nif"));
             }
+        }catch (SQLException e) {
+            System.out.println("Error no existe ese de nif de contacto en la base de datos." + e.getMessage());
+            e.printStackTrace();
         }
         return nifs;
     }
@@ -515,9 +523,7 @@ public class MEjSingleton {
     }
 
     //Método para insertar un producto en la base de datos en postgres
-    //Método para insertar un producto en la base de datos en postgres
     static void crearProducto(String nombre, Double precio, int stock, String nombre_categoria, String nif) {
-
         // Paso 1: Obtener el ID de la categoría en PostgreSQL usando el nombre de la categoría
         String sqlCategoria = "SELECT id_categoria FROM objetos.categorias WHERE nombre_categoria = ?";
         int idCategoria = -1;
@@ -623,6 +629,7 @@ public class MEjSingleton {
                     System.out.println("ID Proveedor: " + rsMostrarPostgres.getInt("id_proveedor"));
                 }
             } catch (SQLException e) {
+                System.out.println("Error al hacer la consulta a la tabla productos");
                 e.printStackTrace();
             }
         }
@@ -698,8 +705,6 @@ public class MEjSingleton {
                 }
             }
 
-            // Confirmar transacción en MySQL
-            mysqlconn.commit();
 
             // Iniciar transacción en PostgreSQL
             postgresConn.setAutoCommit(false);
@@ -720,6 +725,8 @@ public class MEjSingleton {
 
             // Confirmar transacción en PostgreSQL
             postgresConn.commit();
+            // Confirmar transacción en MySQL
+            mysqlconn.commit();
 
             System.out.println("Producto eliminado de PostgreSQL.");
 

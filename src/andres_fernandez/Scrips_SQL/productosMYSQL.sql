@@ -58,7 +58,8 @@ INSERT INTO pedidos (id_pedido, id_usuario, fecha_pedido) VALUES
 (2, 2, '2024-10-11'),
 (3, 3, '2024-09-12'),
 (4, 4, '2024-11-12'),
-(5, 5, '2024-11-13');
+(5, 5, '2024-11-13'),
+(6, 1, '2024-11-14');
 
 
 -- Insertar datos en la tabla pedidos_productos

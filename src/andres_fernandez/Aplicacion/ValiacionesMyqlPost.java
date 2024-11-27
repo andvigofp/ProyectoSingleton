@@ -1,15 +1,21 @@
 package andres_fernandez.Aplicacion;
 
+import andres_fernandez.Conexiones.DabaseMYSQL;
+import andres_fernandez.Conexiones.DatabasePostgres;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.InputMismatchException;
-import java.util.Locale;
-import java.util.Scanner;
+import java.util.*;
 
 public class ValiacionesMyqlPost {
-    
+    private static Connection mysqlconn = DabaseMYSQL.getInstance();
+    private static Connection postgresConn = DatabasePostgres.getInstance();
+
     //Método para pedir por teclado para atributos de tipo int
     static int pedirInt(Scanner teclado, String mensaje) {
         int valor = -1;
@@ -213,6 +219,24 @@ public class ValiacionesMyqlPost {
         }while (true); // Repite hasta que el id sea válido
     }
 
+    //Metodo para mostrar los nombres de las categorias
+    public static List<String> obtenerNombreCategorias() {
+        List<String> nombres = new ArrayList<>();
+        String sql = "SELECT nombre_categoria FROM objetos.categorias";
+
+        try (PreparedStatement stm = postgresConn.prepareStatement(sql);
+             ResultSet rs = stm.executeQuery()){
+            while (rs.next()) {
+                nombres.add(rs.getString("nombre_categoria"));
+            }
+
+        }catch (SQLException e) {
+            System.out.println("Error no existe ningún nombre de esa categoría. " + e.getMessage());
+            e.printStackTrace();
+        }
+        return nombres;
+    }
+
         // Método para validar y capturar los datos del producto
         static ArrayList<String> esNombreCrearProducto(Scanner teclado) {
             ArrayList<String> productoData = new ArrayList<>();
@@ -236,6 +260,13 @@ public class ValiacionesMyqlPost {
                 while (!stock.matches("\\d+")) {
                     System.out.println("Error. El stock debe ser un número entero.");
                     stock = pedirStringLine(teclado, "Ingrese el stock del producto a insertar: ");
+                }
+
+                // Obtener y mostrar los nombres de las categorias  de los proveedores antes de pedir  la categoria del proveedor
+                List<String> nombres = obtenerNombreCategorias();
+                System.out.println("Lista de todas categorias:");
+                for (String nombreC : nombres) {
+                    System.out.println(nombreC);
                 }
 
                 String categoria = pedirStringLine(teclado, "Ingrese el nombre de la categoría del producto a insertar: ");
